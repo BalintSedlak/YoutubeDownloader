@@ -26,8 +26,6 @@ namespace YoutubeDownloader.YoutubeDlWrapper
         /// <returns></returns>
         public static async Task<int> ExecuteCommand(string arguments)
         {
-            //bool isSuccessful = false;
-
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.CreateNoWindow = true;
             startInfo.UseShellExecute = false;
@@ -38,28 +36,10 @@ namespace YoutubeDownloader.YoutubeDlWrapper
 
             try
             {
-                using(Process process = new Process { StartInfo = startInfo, EnableRaisingEvents = true })
+                using (Process process = new Process { StartInfo = startInfo, EnableRaisingEvents = true })
                 {
                     return await RunProcessAsync(process).ConfigureAwait(false);
                 }
-
-                //todo: remove this
-                //using (Process process = Process.Start(startInfo))
-                //{
-                //    process.OutputDataReceived += Process_OutputDataReceived;
-                //    process.ErrorDataReceived += Process_OutputDataReceived;
-
-                //    process.BeginOutputReadLine();
-                //    process.BeginErrorReadLine();
-
-                //    process.WaitForExit();
-
-                //    if (process.ExitCode.Equals(0))
-                //    {
-                //        //isSuccessful = true;
-                //        return "";
-                //    }
-                //}
             }
             catch (Exception ex)
             {
@@ -67,7 +47,6 @@ namespace YoutubeDownloader.YoutubeDlWrapper
                 // Log error.
             }
 
-            //return isSuccessful;
             return -1;
         }
 

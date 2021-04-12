@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using YoutubeDownloader.Models;
 using YoutubeDownloader.Service;
-using YoutubeDownloader.Wpf.Commands;
 using YoutubeDownloader.Wpf.Views.Dialogs;
+using WpfFramework.Core;
 
 namespace YoutubeDownloader.Wpf.Views.Windows
 {

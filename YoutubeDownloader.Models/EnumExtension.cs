@@ -24,7 +24,7 @@ namespace YoutubeDownloader.Models
 
         public static IEnumerable<string> GetAllDescription<T>(this Enum en) where T : Enum
         {
-            return Enum.GetValues(typeof(T)).Cast<T>().Select((e) => e.GetDescription<T>()).ToList(); 
+            return Enum.GetValues(typeof(T)).Cast<T>().Select((e) => e.GetDescription<T>()).ToList();
         }
 
         /// <summary>

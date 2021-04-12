@@ -70,7 +70,7 @@ namespace YoutubeDownloader.Service
             }
 
             string finalArgument = $"-f {quality}{format} {playlist} -o {_quote}{saveLocation}{Path.DirectorySeparatorChar}%(title)s.%(ext)s{_quote} {url}";
-            
+
             return finalArgument;
         }
     }
