@@ -14,22 +14,33 @@ namespace YoutubeDownloader.Wpf
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+            
+            IContainer container = SetupDependencyInjection();
 
-            var builder = new ContainerBuilder();
-
-            var wpfAssembly = Assembly.GetExecutingAssembly();
-            var serviceAssembly = typeof(YoutubeDlService).Assembly;
-            builder.RegisterAssemblyTypes(wpfAssembly);
-            builder.RegisterAssemblyTypes(serviceAssembly);
-
-            var container = builder.Build();
+            using (var scope = container.BeginLifetimeScope())
+            {
+                var environmentService = scope.Resolve<ApplicationService>();
+                environmentService.DownloadYoutubeDlIfNotExists();
+            }
 
             using (var scope = container.BeginLifetimeScope())
             {
                 var mainWindow = scope.Resolve<MainWindow>();
+                MainWindow.Show();
             }
+        }
 
-            MainWindow.Show();
+        private static IContainer SetupDependencyInjection()
+        {
+            var builder = new ContainerBuilder();
+
+            var wpfAssembly = Assembly.GetExecutingAssembly();
+            var serviceAssembly = typeof(YoutubeDownloaderService).Assembly;
+            builder.RegisterAssemblyTypes(wpfAssembly);
+            builder.RegisterAssemblyTypes(serviceAssembly);
+
+            var container = builder.Build();
+            return container;
         }
     }
 }

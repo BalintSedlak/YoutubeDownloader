@@ -9,12 +9,15 @@ namespace YoutubeDownloader.Wpf.Views.Windows
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly YoutubeDlService _youtubeDlService;
+        private readonly YoutubeDownloaderService _youtubeDownloaderService;
+        private readonly ApplicationService _applicationService;
         private readonly FolderDialogViewModel _folderDialogViewModel;
+
         private string _consoleOutput;
         private string _url;
         private string _saveLocation;
-        private bool _isCommandRunning;
+        private bool _isDownloadCommandRunning;
+        private bool _isUpdateYoutubeDlCommandRunning;
         private QualitySetting selectedQualitySetting;
         private FormatSetting selectedFormatSetting;
 
@@ -49,16 +52,21 @@ namespace YoutubeDownloader.Wpf.Views.Windows
         }
 
         public RelayCommand DownloadCommand { get; set; }
+        public RelayCommand AbortCommand { get; set; }
+        public RelayCommand UpdateYoutubeDlCommand { get; set; }
         public RelayCommand ShowFolderDialogCommand { get; set; }
 
-        public MainWindowViewModel(YoutubeDlService youtubeDlService, FolderDialogViewModel folderDialogViewModel)
+        public MainWindowViewModel(YoutubeDownloaderService youtubeDownloaderService, ApplicationService applicationService, FolderDialogViewModel folderDialogViewModel)
         {
-            _youtubeDlService = youtubeDlService;
+            _youtubeDownloaderService = youtubeDownloaderService;
+            _applicationService = applicationService;
             _folderDialogViewModel = folderDialogViewModel;
 
-            _youtubeDlService.ConsoleOutputReceived += ConsoleOutputReceived;
+            _youtubeDownloaderService.ConsoleOutputReceived += ConsoleOutputReceived;
 
             DownloadCommand = new RelayCommand(ExecuteDownloadCommand, CanExecuteDownloadCommand);
+            AbortCommand = new RelayCommand(ExecuteAbortCommand, CanExecuteAbortCommand);
+            UpdateYoutubeDlCommand = new RelayCommand(ExecuteUpdateYoutubeDlCommand, CanExecuteUpdateYoutubeDlCommand);
             ShowFolderDialogCommand = new RelayCommand(ExecuteShowFolderDialogCommand, CanExecuteShowFolderDialogCommand);
 
             selectedQualitySetting = QualitySetting.Best;
@@ -90,17 +98,16 @@ namespace YoutubeDownloader.Wpf.Views.Windows
             return true;
         }
 
-
         public async void ExecuteDownloadCommand()
         {
-            _isCommandRunning = true;
-            Task executionTask;
+            _isDownloadCommandRunning = true;
+            Task downloadTask;
 
-            executionTask = _youtubeDlService.DownloadPlaylistAsync(Url, SaveLocation, SelectedQualitySetting, SelectedFormatSetting);
+            downloadTask = _youtubeDownloaderService.DownloadPlaylistAsync(Url, SaveLocation, SelectedQualitySetting, SelectedFormatSetting);
 
-            await executionTask.ContinueWith(x =>
+            await downloadTask.ContinueWith(x =>
             {
-                _isCommandRunning = false;
+                _isDownloadCommandRunning = false;
                 DownloadCommand.RaiseCanExecuteChanged();
             });
         }
@@ -112,7 +119,52 @@ namespace YoutubeDownloader.Wpf.Views.Windows
                 return false;
             }
 
-            if (_isCommandRunning)
+            if (_isDownloadCommandRunning || _isUpdateYoutubeDlCommandRunning)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        public void ExecuteAbortCommand()
+        {
+            _youtubeDownloaderService.AbortDownload();
+            ConsoleOutput += "Download process is manually aborted.";
+            AbortCommand.RaiseCanExecuteChanged();
+        }
+
+        public bool CanExecuteAbortCommand()
+        {
+            if (!_isDownloadCommandRunning)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        public async void ExecuteUpdateYoutubeDlCommand()
+        {
+            _isUpdateYoutubeDlCommandRunning = true;
+            Task updateTask;
+
+            updateTask = _applicationService.UpdateYoutubeDl();
+
+            await updateTask.ContinueWith(x =>
+            {
+                _isUpdateYoutubeDlCommandRunning = false;
+                UpdateYoutubeDlCommand.RaiseCanExecuteChanged();
+            });
+        }
+
+        public bool CanExecuteUpdateYoutubeDlCommand()
+        {
+            if (_isDownloadCommandRunning || _isUpdateYoutubeDlCommandRunning)
             {
                 return false;
             }
@@ -136,7 +188,7 @@ namespace YoutubeDownloader.Wpf.Views.Windows
 
         public bool CanExecuteShowFolderDialogCommand()
         {
-            if (_isCommandRunning)
+            if (_isDownloadCommandRunning)
             {
                 return false;
             }

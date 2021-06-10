@@ -80,7 +80,16 @@
                     </ScrollViewer>
                 </GroupBox>
 
-                <Button Name="_DownloadButton" Content="Download" Grid.Row="1" Margin="5" Command="{Binding DownloadCommand}"/>
+                <Grid Grid.Row="1" Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Name="_DownloadButton" Grid.Column="0" Content="Download" Command="{Binding DownloadCommand}"/>
+                    <Button Name="_AbortButton" Grid.Column="1" Content="Abort" Command="{Binding AbortCommand}"/>
+                    <Button Name="_UpdateYoutubeDlButton" Grid.Column="2" Content="Update Youtube-dl" Command="{Binding UpdateYoutubeDlCommand}"/>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>

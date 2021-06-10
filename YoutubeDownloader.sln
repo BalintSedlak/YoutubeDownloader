@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoutubeDownloader.Models", "YoutubeDownloader.Models\YoutubeDownloader.Models.csproj", "{C28FC0F1-1130-4ACA-98D9-4FC581D8DA5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoutubeDownloader.Models", "YoutubeDownloader.Models\YoutubeDownloader.Models.csproj", "{C28FC0F1-1130-4ACA-98D9-4FC581D8DA5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoutubeDownloader.Service", "YoutubeDownloader.Service\YoutubeDownloader.Service.csproj", "{025E2CBD-60F2-4DB5-82EB-A6BF4A2B7351}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoutubeDownloader.Service", "YoutubeDownloader.Service\YoutubeDownloader.Service.csproj", "{025E2CBD-60F2-4DB5-82EB-A6BF4A2B7351}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoutubeDownloader.YoutubeDlWrapper", "YoutubeDownloader.YoutubeDlWrapper\YoutubeDownloader.YoutubeDlWrapper.csproj", "{795A3869-4686-4254-AB82-B2BA580D63F9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YoutubeDownloader.Wpf", "YoutubeDownloader.Wpf\YoutubeDownloader.Wpf.csproj", "{75253E3B-ED74-466F-B9A3-86176D8CCEE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YoutubeDownloader.Wpf", "YoutubeDownloader.Wpf\YoutubeDownloader.Wpf.csproj", "{75253E3B-ED74-466F-B9A3-86176D8CCEE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +23,6 @@ Global
 		{025E2CBD-60F2-4DB5-82EB-A6BF4A2B7351}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{025E2CBD-60F2-4DB5-82EB-A6BF4A2B7351}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{025E2CBD-60F2-4DB5-82EB-A6BF4A2B7351}.Release|Any CPU.Build.0 = Release|Any CPU
-		{795A3869-4686-4254-AB82-B2BA580D63F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{795A3869-4686-4254-AB82-B2BA580D63F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{795A3869-4686-4254-AB82-B2BA580D63F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{795A3869-4686-4254-AB82-B2BA580D63F9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{75253E3B-ED74-466F-B9A3-86176D8CCEE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{75253E3B-ED74-466F-B9A3-86176D8CCEE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75253E3B-ED74-466F-B9A3-86176D8CCEE5}.Release|Any CPU.ActiveCfg = Release|Any CPU

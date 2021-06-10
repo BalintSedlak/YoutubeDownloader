@@ -3,15 +3,17 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace YoutubeDownloader.YoutubeDlWrapper
+namespace YoutubeDownloader.Service
 {
-    public class YoutubeDlWrapper
+    public class YoutubeDlWrapperService
     {
         public delegate void OutputReceivedEventHandler(object sender, string arg);
-
-        private string YoutubeDlPath => $"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}YoutubeDl{Path.DirectorySeparatorChar}youtube-dl.exe";
-
         public event OutputReceivedEventHandler OutputReceived;
+
+        public string YoutubeDlDirectoryPath => $"{Directory.GetCurrentDirectory()}{Path.DirectorySeparatorChar}YoutubeDl";
+        public string YoutubeDlExePath => $"{YoutubeDlDirectoryPath}{Path.DirectorySeparatorChar}youtube-dl.exe";
+
+        private Process _process; 
 
         /// <summary>
         /// Based on https://stackoverflow.com/questions/10788982/is-there-any-async-equivalent-of-process-start
@@ -26,22 +28,21 @@ namespace YoutubeDownloader.YoutubeDlWrapper
             startInfo.RedirectStandardOutput = true;
             startInfo.RedirectStandardError = true;
             startInfo.Arguments = arguments;
-            startInfo.FileName = YoutubeDlPath;
+            startInfo.FileName = YoutubeDlExePath;
 
             try
             {
-                using (Process process = new Process { StartInfo = startInfo, EnableRaisingEvents = true })
+                using (_process = new Process { StartInfo = startInfo, EnableRaisingEvents = true })
                 {
-                    return await RunProcessAsync(process).ConfigureAwait(false);
+                    return await RunProcessAsync(_process).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
                 //todo
                 // Log error.
+                throw;
             }
-
-            return -1;
         }
 
         /// <summary>
@@ -72,6 +73,11 @@ namespace YoutubeDownloader.YoutubeDlWrapper
         private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             OutputReceived.Invoke(sender, e.Data);
+        }
+
+        public void KillProcess()
+        {
+            _process.Kill();
         }
     }
 }

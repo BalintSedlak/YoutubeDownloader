@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\YoutubeDownloader.Models\YoutubeDownloader.Models.csproj" />
-    <ProjectReference Include="..\YoutubeDownloader.YoutubeDlWrapper\YoutubeDownloader.YoutubeDlWrapper.csproj" />
   </ItemGroup>
 
 </Project>

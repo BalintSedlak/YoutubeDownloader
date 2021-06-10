@@ -8,4 +8,10 @@
     <Folder Include="YoutubeDl\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="YoutubeDl\youtube-dl.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

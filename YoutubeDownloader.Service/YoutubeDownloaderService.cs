@@ -4,16 +4,19 @@ using YoutubeDownloader.Models;
 
 namespace YoutubeDownloader.Service
 {
-    public class YoutubeDlService
+    public class YoutubeDownloaderService
     {
+        private readonly YoutubeDlWrapperService _youtubeDlWrapperService;
+
         public delegate void ConsoleOutputReceivedEventHandler(object sender, string arg);
         public event ConsoleOutputReceivedEventHandler ConsoleOutputReceived;
 
         private const string _quote = "\"";
 
-        public YoutubeDlService()
+        public YoutubeDownloaderService(YoutubeDlWrapperService youtubeDlWrapperService)
         {
-            YoutubeDlWrapper.YoutubeDlWrapper.OutputReceived += OutputReceivedFromYoutubeDl;
+            _youtubeDlWrapperService = youtubeDlWrapperService;
+            _youtubeDlWrapperService.OutputReceived += OutputReceivedFromYoutubeDl;
         }
 
         private void OutputReceivedFromYoutubeDl(object sender, string arg)
@@ -24,19 +27,19 @@ namespace YoutubeDownloader.Service
         public async Task DownloadPlaylistAsync(string url, string saveLocation, QualitySetting selectedQualitySetting, FormatSetting selectedFormatSetting)
         {
             string argument = AssembleArguments(url, saveLocation, includePlaylist: true, selectedQualitySetting, selectedFormatSetting);
-            await YoutubeDlWrapper.YoutubeDlWrapper.ExecuteCommand(argument);
+            await _youtubeDlWrapperService.ExecuteCommand(argument);
         }
 
         public async Task DownloadSingleFileAsync(string url, string saveLocation, QualitySetting selectedQualitySetting, FormatSetting selectedFormatSetting)
         {
             string argument = AssembleArguments(url, saveLocation, includePlaylist: false, selectedQualitySetting, selectedFormatSetting);
-            await YoutubeDlWrapper.YoutubeDlWrapper.ExecuteCommand(argument);
+            await _youtubeDlWrapperService.ExecuteCommand(argument);
         }
 
         public async Task ListFormatsForSingleFileAsync(string url)
         {
             string arguments = $"-F {url}";
-            await YoutubeDlWrapper.YoutubeDlWrapper.ExecuteCommand(arguments);
+            await _youtubeDlWrapperService.ExecuteCommand(arguments);
         }
 
         private string AssembleArguments(string url, string saveLocation, bool includePlaylist, QualitySetting selectedQualitySetting, FormatSetting selectedFormatSetting)
@@ -72,6 +75,11 @@ namespace YoutubeDownloader.Service
             string finalArgument = $"-f {quality}{format} {playlist} -o {_quote}{saveLocation}{Path.DirectorySeparatorChar}%(title)s.%(ext)s{_quote} {url}";
 
             return finalArgument;
+        }
+
+        public void AbortDownload()
+        {
+            _youtubeDlWrapperService.KillProcess();
         }
     }
 }
