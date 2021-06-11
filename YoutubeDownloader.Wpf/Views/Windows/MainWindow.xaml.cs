@@ -23,6 +23,18 @@ namespace YoutubeDownloader.Wpf.Views.Windows
             WindowState = WindowState.Minimized;
         }
 
+        private void _MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                WindowState = WindowState.Normal;
+            }
+            else
+            {
+                WindowState = WindowState.Maximized;
+            }
+        }
+
         private void _CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Shutdown();

@@ -7,8 +7,8 @@
         xmlns:usercontrols="clr-namespace:YoutubeDownloader.Wpf.Views.UserControls"
         mc:Ignorable="d"
         Title="Youtube Downloader" WindowStyle="None" WindowStartupLocation="CenterScreen" 
-        MinHeight="500" MinWidth="600"
-        Height="500" Width="800"
+        MinHeight="500" MinWidth="900"
+        Height="500" Width="900"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -21,13 +21,14 @@
     </Window.Resources>
     <Grid Name="_MainGrid" MouseDown="_MainGrid_MouseDown">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <Grid x:Name="_TitleBar" Grid.Row="0" Background="{DynamicResource PrimaryHueMidBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{Binding ActualHeight, ElementName=_TitleBar, Mode=OneWay}"/>
                 <ColumnDefinition Width="{Binding ActualHeight, ElementName=_TitleBar, Mode=OneWay}"/>
                 <ColumnDefinition Width="{Binding ActualHeight, ElementName=_TitleBar, Mode=OneWay}"/>
             </Grid.ColumnDefinitions>
@@ -38,6 +39,9 @@
                 <Button x:Name="_MinimalizeButton" Content="-" Style="{DynamicResource MaterialDesignFlatButton}" Foreground="White" Click="_MinimalizeButton_Click"/>
             </Viewbox>
             <Viewbox Grid.Column="2" >
+                <Button x:Name="_MaximizeButton" Content="❐" Style="{DynamicResource MaterialDesignFlatButton}" Foreground="White" Click="_MaximizeButton_Click"/>
+            </Viewbox>
+            <Viewbox Grid.Column="3" >
                 <Button x:Name="_CloseButton" Content="✖" Style="{DynamicResource MaterialDesignFlatButton}" Foreground="White" Click="_CloseButton_Click"/>
             </Viewbox>
         </Grid>
@@ -86,9 +90,27 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Name="_DownloadButton" Grid.Column="0" Content="Download" Command="{Binding DownloadCommand}"/>
-                    <Button Name="_AbortButton" Grid.Column="1" Content="Abort" Command="{Binding AbortCommand}"/>
-                    <Button Name="_UpdateYoutubeDlButton" Grid.Column="2" Content="Update Youtube-dl" Command="{Binding UpdateYoutubeDlCommand}"/>
+                    <Button Name="_DownloadButton" Grid.Column="0" Command="{Binding DownloadCommand}">
+                        <Button.Content>
+                            <Viewbox>
+                                <TextBlock Text="Download"/>
+                            </Viewbox>
+                        </Button.Content>
+                    </Button>
+                    <Button Name="_AbortButton" Grid.Column="1" Command="{Binding AbortCommand}">
+                        <Button.Content>
+                            <Viewbox>
+                                <TextBlock Text="Abort"/>
+                            </Viewbox>
+                        </Button.Content>
+                    </Button>
+                    <Button Name="_UpdateYoutubeDlButton" Grid.Column="2" Command="{Binding UpdateYoutubeDlCommand}">
+                        <Button.Content>
+                            <Viewbox>
+                                <TextBlock Text="Update Youtube-dl"/>
+                            </Viewbox>
+                        </Button.Content>
+                    </Button>
                 </Grid>
             </Grid>
         </Grid>
