@@ -18,7 +18,7 @@
         <converters:QualitySettingToStringConverter x:Key="QualitySettingToStringConverter"/>
     </UserControl.Resources>
     <StackPanel Name="_MainPanel">
-        <GroupBox Header="Automatic download options" >
+        <GroupBox Header="Download options" >
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>

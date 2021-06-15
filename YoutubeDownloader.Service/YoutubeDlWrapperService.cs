@@ -72,7 +72,7 @@ namespace YoutubeDownloader.Service
 
         private void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            OutputReceived.Invoke(sender, e.Data);
+            OutputReceived?.Invoke(sender, e.Data);
         }
 
         public void KillProcess()

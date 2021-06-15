@@ -21,7 +21,7 @@ namespace YoutubeDownloader.Service
 
         private void OutputReceivedFromYoutubeDl(object sender, string arg)
         {
-            ConsoleOutputReceived.Invoke(sender, arg);
+            ConsoleOutputReceived?.Invoke(sender, arg);
         }
 
         public async Task DownloadPlaylistAsync(string url, string saveLocation, QualitySetting selectedQualitySetting, FormatSetting selectedFormatSetting)

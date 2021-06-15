@@ -38,5 +38,9 @@ namespace YoutubeDownloader.Service
                 Directory.CreateDirectory(path);
             }
         }
+
+        //TODO: Add FFMpeg auto updater:
+        //https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.7z
+        //https://www.gyan.dev/ffmpeg/builds/
     }
 }
