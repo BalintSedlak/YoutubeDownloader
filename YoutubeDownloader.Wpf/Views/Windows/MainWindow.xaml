@@ -69,8 +69,8 @@
                     </Button>
                 </Grid>
 
-                <usercontrols:DownloadOptionsControl Margin="5"  SelectedQualitySetting="{Binding SelectedQualitySetting}" SelectedFormatSetting="{Binding SelectedFormatSetting}"/>
-
+                <usercontrols:DownloadOptionsControl Margin="5" SelectedQualitySetting="{Binding SelectedQualitySetting}" SelectedFormatSetting="{Binding SelectedFormatSetting}"/>
+                <usercontrols:OutputFormatControl Margin="5" OutputFormatItemsSource="{Binding OutputFormatItemsSource}" SelectedFormatSetting="{Binding SelectedFormatSetting}" SelectedOutputFormat="{Binding SelectedOutputFormat}"/>
             </StackPanel>
 
             <Grid Grid.Column="1">

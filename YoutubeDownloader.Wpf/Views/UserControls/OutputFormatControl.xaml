@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="YoutubeDownloader.Wpf.Views.UserControls.OutputFormatControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:YoutubeDownloader.Wpf.Views.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+             TextElement.FontWeight="Regular"
+             TextElement.FontSize="13"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="Auto"
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{DynamicResource MaterialDesignFont}">
+    <StackPanel Name="_MainPanel">
+        <GroupBox Header="Output options" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="4*" />
+                </Grid.ColumnDefinitions>
+
+                <Viewbox Grid.Row="0" Grid.Column="0" >
+                    <TextBlock Text="Output Format:" Style="{StaticResource MaterialDesignCaptionTextBlock}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Viewbox>
+                <ComboBox Grid.Row="0" Grid.Column="1" Margin="10" HorizontalContentAlignment="Center"
+                          ItemsSource="{Binding OutputFormatItemsSource, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" 
+                          SelectedValue="{Binding SelectedOutputFormat}"
+                />
+            </Grid>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

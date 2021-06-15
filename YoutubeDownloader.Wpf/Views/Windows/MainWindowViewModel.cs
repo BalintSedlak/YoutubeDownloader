@@ -4,6 +4,9 @@ using YoutubeDownloader.Models;
 using YoutubeDownloader.Service;
 using YoutubeDownloader.Wpf.Views.Dialogs;
 using WpfFramework.Core;
+using System.IO;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace YoutubeDownloader.Wpf.Views.Windows
 {
@@ -11,15 +14,20 @@ namespace YoutubeDownloader.Wpf.Views.Windows
     {
         private readonly YoutubeDownloaderService _youtubeDownloaderService;
         private readonly ApplicationService _applicationService;
+        private readonly FileConverterService _fileConverterService;
         private readonly FolderDialogViewModel _folderDialogViewModel;
 
         private string _consoleOutput;
         private string _url;
         private string _saveLocation;
         private bool _isDownloadCommandRunning;
+        private bool _isConvertCommandRunning;
         private bool _isUpdateYoutubeDlCommandRunning;
-        private QualitySetting selectedQualitySetting;
-        private FormatSetting selectedFormatSetting;
+        private QualitySetting _selectedQualitySetting;
+        private FormatSetting _selectedFormatSetting;
+        private IEnumerable<string> _outputFormatItemsSource;
+        private string _selectedOutputFormat;
+        CancellationTokenSource _cancellationToken;
 
         public string ConsoleOutput
         {
@@ -36,19 +44,33 @@ namespace YoutubeDownloader.Wpf.Views.Windows
         public string SaveLocation
         {
             get => _saveLocation;
-            set => SetField(ref _saveLocation, value, nameof(SaveLocation));
+            set { SetField(ref _saveLocation, value, nameof(SaveLocation)); OnPropertyChanged(TempSaveLocation); }
         }
+
+        public string TempSaveLocation => $"{SaveLocation}{Path.DirectorySeparatorChar}Temp";
 
         public QualitySetting SelectedQualitySetting
         {
-            get => selectedQualitySetting;
-            set => SetField(ref selectedQualitySetting, value, nameof(SelectedQualitySetting));
+            get => _selectedQualitySetting;
+            set => SetField(ref _selectedQualitySetting, value, nameof(SelectedQualitySetting));
         }
 
         public FormatSetting SelectedFormatSetting
         {
-            get => selectedFormatSetting;
-            set => SetField(ref selectedFormatSetting, value, nameof(SelectedFormatSetting));
+            get => _selectedFormatSetting;
+            set { SetField(ref _selectedFormatSetting, value, nameof(SelectedFormatSetting)); SelectedFormatChanged(); }
+        }
+
+        public IEnumerable<string> OutputFormatItemsSource
+        {
+            get => _outputFormatItemsSource;
+            set => SetField(ref _outputFormatItemsSource, value, nameof(OutputFormatItemsSource));
+        }
+
+        public string SelectedOutputFormat
+        {
+            get => _selectedOutputFormat;
+            set => SetField(ref _selectedOutputFormat, value, nameof(SelectedOutputFormat));
         }
 
         public RelayCommand DownloadCommand { get; set; }
@@ -56,21 +78,50 @@ namespace YoutubeDownloader.Wpf.Views.Windows
         public RelayCommand UpdateYoutubeDlCommand { get; set; }
         public RelayCommand ShowFolderDialogCommand { get; set; }
 
-        public MainWindowViewModel(YoutubeDownloaderService youtubeDownloaderService, ApplicationService applicationService, FolderDialogViewModel folderDialogViewModel)
+        public MainWindowViewModel(YoutubeDownloaderService youtubeDownloaderService, ApplicationService applicationService, FileConverterService fileConverterService, FolderDialogViewModel folderDialogViewModel)
         {
             _youtubeDownloaderService = youtubeDownloaderService;
             _applicationService = applicationService;
+            _fileConverterService = fileConverterService;
             _folderDialogViewModel = folderDialogViewModel;
 
             _youtubeDownloaderService.ConsoleOutputReceived += ConsoleOutputReceived;
+            _fileConverterService.ConsoleOutputReceived += ConsoleOutputReceived;
+
+            _cancellationToken = new CancellationTokenSource();
 
             DownloadCommand = new RelayCommand(ExecuteDownloadCommand, CanExecuteDownloadCommand);
             AbortCommand = new RelayCommand(ExecuteAbortCommand, CanExecuteAbortCommand);
             UpdateYoutubeDlCommand = new RelayCommand(ExecuteUpdateYoutubeDlCommand, CanExecuteUpdateYoutubeDlCommand);
             ShowFolderDialogCommand = new RelayCommand(ExecuteShowFolderDialogCommand, CanExecuteShowFolderDialogCommand);
 
-            selectedQualitySetting = QualitySetting.Best;
-            selectedFormatSetting = FormatSetting.VideoAndAudio;
+            _selectedQualitySetting = QualitySetting.Best;
+            _selectedFormatSetting = FormatSetting.VideoAndAudio;
+            SelectedFormatChanged();
+        }
+
+        public void SelectedFormatChanged()
+        {
+            switch (SelectedFormatSetting)
+            {
+                case FormatSetting.VideoAndAudio:
+                    OutputFormatItemsSource = AvailableOutputFormats.Video;
+                    SelectedOutputFormat = AvailableOutputFormats.Video[0];
+                    break;
+                case FormatSetting.Audio:
+                    OutputFormatItemsSource = AvailableOutputFormats.Audio;
+                    SelectedOutputFormat = AvailableOutputFormats.Audio[0];
+                    break;
+                case FormatSetting.Video:
+                    OutputFormatItemsSource = AvailableOutputFormats.Video;
+                    SelectedOutputFormat = AvailableOutputFormats.Video[0];
+                    break;
+                default:
+                    break;
+            }
+
+            OnPropertyChanged(nameof(SelectedOutputFormat));
+            OnPropertyChanged(nameof(OutputFormatItemsSource));
         }
 
         private void ConsoleOutputReceived(object sender, string arg)
@@ -98,17 +149,39 @@ namespace YoutubeDownloader.Wpf.Views.Windows
             return true;
         }
 
-        public async void ExecuteDownloadCommand()
+        public void ExecuteDownloadCommand()
         {
+            _cancellationToken = new CancellationTokenSource();
             _isDownloadCommandRunning = true;
-            Task downloadTask;
 
-            downloadTask = _youtubeDownloaderService.DownloadPlaylistAsync(Url, SaveLocation, SelectedQualitySetting, SelectedFormatSetting);
-
-            await downloadTask.ContinueWith(x =>
+            _youtubeDownloaderService.DownloadPlaylistAsync(Url, TempSaveLocation, SelectedQualitySetting, SelectedFormatSetting)
+            .ContinueWith(result =>
             {
+                if (!result.IsCompletedSuccessfully)
+                {
+                    _isDownloadCommandRunning = false;
+                    return;
+                }
+
+                _isConvertCommandRunning = true;
                 _isDownloadCommandRunning = false;
-                DownloadCommand.RaiseCanExecuteChanged();
+
+                ConsoleOutputReceived(this, "Converting file(s)...");
+                _fileConverterService.ConvertFiles(TempSaveLocation, SaveLocation, SelectedOutputFormat, _cancellationToken)
+                    .ContinueWith(result =>
+                    {
+                        if (result.IsCompletedSuccessfully)
+                        {
+                            ConsoleOutputReceived(this, "File(s) are converted.");
+                        }
+                        else if (result.IsCanceled)
+                        {
+                            ConsoleOutputReceived(this, "Convert process is manually aborted.");
+                        }
+
+                        _isConvertCommandRunning = false;
+                        DownloadCommand.RaiseCanExecuteChanged();
+                    });
             });
         }
 
@@ -119,7 +192,7 @@ namespace YoutubeDownloader.Wpf.Views.Windows
                 return false;
             }
 
-            if (_isDownloadCommandRunning || _isUpdateYoutubeDlCommandRunning)
+            if (_isDownloadCommandRunning || _isConvertCommandRunning || _isUpdateYoutubeDlCommandRunning)
             {
                 return false;
             }
@@ -131,20 +204,28 @@ namespace YoutubeDownloader.Wpf.Views.Windows
 
         public void ExecuteAbortCommand()
         {
-            _youtubeDownloaderService.AbortDownload();
-            ConsoleOutput += "Download process is manually aborted.";
+            if (_isDownloadCommandRunning)
+            {
+                _youtubeDownloaderService.AbortDownload();
+                ConsoleOutputReceived(this, "Download process is manually aborted.");
+            }
+            if (_isConvertCommandRunning)
+            {
+                _cancellationToken.Cancel();
+            }
+
             AbortCommand.RaiseCanExecuteChanged();
         }
 
         public bool CanExecuteAbortCommand()
         {
-            if (!_isDownloadCommandRunning)
+            if (_isDownloadCommandRunning || _isConvertCommandRunning)
             {
-                return false;
+                return true;
             }
             else
             {
-                return true;
+                return false;
             }
         }
 
@@ -164,7 +245,7 @@ namespace YoutubeDownloader.Wpf.Views.Windows
 
         public bool CanExecuteUpdateYoutubeDlCommand()
         {
-            if (_isDownloadCommandRunning || _isUpdateYoutubeDlCommandRunning)
+            if (_isDownloadCommandRunning || _isConvertCommandRunning || _isUpdateYoutubeDlCommandRunning)
             {
                 return false;
             }
@@ -188,7 +269,7 @@ namespace YoutubeDownloader.Wpf.Views.Windows
 
         public bool CanExecuteShowFolderDialogCommand()
         {
-            if (_isDownloadCommandRunning)
+            if (_isDownloadCommandRunning || _isConvertCommandRunning || _isUpdateYoutubeDlCommandRunning)
             {
                 return false;
             }
